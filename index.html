@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Habit Tracker</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>My Habit Tracker</h1>
+            <button id="reset-btn" class="reset-button">Reset All</button>
+        </header>
+
+        <div class="habit-form">
+            <input type="text" id="habit-input" placeholder="Enter new habit">
+            <select id="frequency-select">
+                <option value="daily">Daily</option>
+                <option value="weekly">Weekly</option>
+            </select>
+            <button id="add-btn">Add Habit</button>
+        </div>
+
+        <div class="habits-container">
+            <div id="habits-list">
+                <!-- Habits will be added here by JavaScript -->
+            </div>
+        </div>
+
+        <div class="stats">
+            <h2>Your Stats</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>Total Habits</h3>
+                    <p id="total-habits">0</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Completed Today</h3>
+                    <p id="completed-today">0</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Best Streak</h3>
+                    <p id="best-streak">0</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

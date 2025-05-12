@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Form</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh; 
+            background-color: #f4f4f4;
+            margin: 0;
+            background-image: url(Aesthetic.jpg);
+            /* background-image: url('http://localhost/yourfolder/formBackgorund.gif'); */
+            background-repeat:no-repeat;
+            background-size: cover;
+            background-position: center;
+          
+        }
+        form {
+            border: 2px solid black;
+            padding: 20px;
+            border-radius: 10px;
+            background: white;
+            box-shadow: 0px 0px 10px gray;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 300px;
+            background: rgba(255, 255, 255, 0.3); 
+    backdrop-filter: blur(10px);
+            
+            
+        }
+        input, button {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid black;
+            border-radius: 5px;
+           
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+            size: 200px;
+        }
+        input::placeholder{
+            color:black
+        }
+        button:hover {
+            background-color: #0056b3;
+            background: linear-gradient(to right, #007bff, #0056b3);
+    transform: scale(1.05);
+
+        } 
+    </style>
+
+    <!-- PHP -->
+</head>
+<body>
+    <!-- <h2 style="color:black">Welcome</h2> -->
+<form action="index.html" target="_blank">
+    <!-- <label for="name">Enter Your Name:</label> -->
+    <input type="text" name="name" placeholder="Enter Your Name" required><br><br>
+    <input type="email" name="email" placeholder="Enter Your Email" id="name" required><br><br>
+    <label><input type="radio" name="gender" value="male" id="male"> Male</label><br>
+    <label><input type="radio" name="gender" value="female" id="female"> Female</label><br>
+    <label><input type="radio" name="gender" value="other" id="other"> Other</label><br><br>
+    <input type="number" name="age" min="1" max="100" placeholder="Enter your age" id="age" style="width: 300px;" required><br><br>
+    <input type="password" name="password" id="pass" placeholder="Enter Your Password" required><br><br>
+   <button type="submit" id="submit" style="width: 300px;">Done
+    </button>
+
+    
+</form>
+</body>
+</html>
