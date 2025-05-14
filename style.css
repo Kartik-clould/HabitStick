@@ -593,3 +593,33 @@ h1 {
     white-space: nowrap;
     border-width: 0;
 }
+/* Stats Section */
+.stats-section{
+    margin-top: var(--space-between);
+    padding: var(--space-1g);
+    background-color: var(--radius-x1);
+    box-shadow: var(--shadow-md);
+    border: 1px solid rgba(0,0,0,0.05);
+}
+.stats-header{
+    display:flex;
+    justify-content : space-between;
+    align-items: center;
+    margin-bottom:var(--space-lg);
+    flex-wrap: wrap;
+    gap: var(--space-md);
+}
+.stats-header h2{
+    color:var(--primary-color);
+    font-size: 1.8rem;
+    margin:0;
+}
+.motivational-quote{
+    font-style: italic;
+    color:var(--text-dark);
+    text-align:right;
+    max-width:400px;
+    animation: fadeInOut 15s infinite;
+    opacity: 0.8
+}
+@keyframes

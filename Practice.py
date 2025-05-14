@@ -1,2 +1,0 @@
-a = om 
-print(a)
