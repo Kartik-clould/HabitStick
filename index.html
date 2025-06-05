@@ -1,71 +1,113 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Simple Habit Tracker</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css" />
+    <!-- Adding FontAwesome for icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      integrity="sha512-papTuzJIRanZk5F2owOCbjF03W4bO6gH01YKi3D2VqO7g3fCD+flMGqCQqC9/nVRVwTxSBBhdu0zq3rYx3ecCg=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>My Habit Tracker</h1>
-            <button id="reset-btn" class="reset-button">Reset All</button>
-        </header>
-
-        <div class="habit-form">
-            <input type="text" id="habit-input" placeholder="Enter new habit">
-            <select id="frequency-select">
-                <option value="daily">Daily</option>
-                <option value="weekly">Weekly</option>
-            </select>
-            <button id="add-btn">Add Habit</button>
-        </div>
-
-        <div class="habits-container">
-            <div id="habits-list">
-                <!-- Habits will be added here by JavaScript -->
+    <div class="app-container">
+        <aside class="sidebar" role="complementary" aria-label="Sidebar navigation">
+            <div class="side-header">
+                <h2>Habit Tracker</h2>
             </div>
-        </div>
-
-        <div class="stats">
-            <h2>Your Stats</h2>
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <h3>Total Habits</h3>
-                    <p id="total-habits">0</p>
-                </div>
-                <div class="stat-card">
-                    <h3>Completed Today</h3>
-                    <p id="completed-today">0</p>
-                </div>
-                <div class="stat-card">
-                    <h3>Best Streak</h3>
-                    <p id="best-streak">0</p>
+            <nav class="sidebar-nav" role="navigation" aria-label="Main navigation">
+                <ul>
+                    <li class="active"><a href="#" aria-current="page"><i class="fas fa-home"></i> Dashboard</a></li>
+                    <li><a href="#"><i class="fas fa-chart-line"></i> Statistics</a></li>
+                    <li><a href="#"><i class="fas fa-bullseye"></i> Goals</a></li>
+                    <li><a href="#"><i class="fas fa-cog"></i> Settings</a></li>
+                </ul>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="user-profile">
+                    <div class="avatar" aria-hidden="true">U</div>
+                    <div class="user-info">
+                        <span class="username">Andres11</span>
+                        <span class="user-email">omsuryawanshi35@gmail.com</span>
+                    </div>
                 </div>
             </div>
-        </div>
+        </aside>
+
+        <main class="container" role="main">
+            <header>
+                <h1>My Habit Tracker</h1>
+                <button id="reset-btn" class="reset-button" aria-label="Reset all habits">Reset All</button>
+            </header>
+
+            <section class="habit-form" aria-label="Add new habit">
+                <input
+                  type="text"
+                  id="habit-input"
+                  placeholder="Enter new habit"
+                  aria-required="true"
+                  aria-describedby="habit-input-desc"
+                />
+                <span id="habit-input-desc" class="sr-only">Type your new habit here</span>
+
+                <select id="frequency-select" aria-label="Select habit frequency">
+                    <option value="daily">Daily</option>
+                    <option value="weekly">Weekly</option>
+                </select>
+                <button id="add-btn" aria-label="Add new habit">Add Habit</button>
+            </section>
+
+            <section class="habits-container" aria-live="polite" aria-label="List of habits">
+                <div id="habits-list">
+                    <!-- Habits will be added here by JavaScript -->
+                </div>
+            </section>
+
+            <section class="stats" aria-label="Your statistics">
+                <h2>Your Stats</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3>Total Habits</h3>
+                        <p id="total-habits">0</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Completed Today</h3>
+                        <p id="completed-today">0</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Best Streak</h3>
+                        <p id="best-streak">0</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="stats-section" aria-label="Progress section">
+                <div class="stats-header">
+                    <h2>Your Progress</h2>
+                    <div class="motivational-quote" id="motivational-quote">
+                        "Success is the sum of small efforts repeated daily." -Robert Collier
+                    </div>
+                </div>
+                <div class="progress-grid">
+                    <div class="stat-card">
+                        <h3>Total Completed</h3>
+                        <p id="total-completed">0</p>
+                    </div>
+                </div>
+
+                <!-- Calendar Section -->
+                <div class="calendar-section" aria-label="Habit calendar">
+                    <h3>Habit Calendar</h3>
+                    <div class="calendar-grid" id="calendar-grid"></div>
+                </div>
+            </section>
+        </main>
     </div>
-    <section class = "stats-section">
-        <div class="stats-header">
-            <h2>Your Progress</h2>
-            <div class="motivational-quote" id="motivational-quote">
-                "Success is the sum of small efforts repeated daily." -Robert Collier
-            </div>
-        </div>
-        <div class="stats-grid">
-            <div class="stat-card">
-                <h3>Total Completed</h3>
-                <p id="total-completed">0</p>
-            </div>
-
-        </div>
-        <!--Calendar Section -->
-        <div class="calendar-section">
-            <h3>Habit Calendar</h3>
-            <div class="claendar-grid" id="calendar-grid"></div>
-        </div>
-    </section>
 
     <script src="script.js"></script>
 </body>

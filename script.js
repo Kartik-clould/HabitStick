@@ -1,200 +1,185 @@
-document.addEventListener('DOMContentLoaded', function() {
-    // DOM Elements
-    const habitInput = document.getElementById('habit-input');
-    const frequencySelect = document.getElementById('frequency-select');
-    const addBtn = document.getElementById('add-btn');
-    const resetBtn = document.getElementById('reset-btn');
-    const habitsList = document.getElementById('habits-list');
-    const totalHabitsEl = document.getElementById('total-habits');
-    const completedTodayEl = document.getElementById('completed-today');
-    const bestStreakEl = document.getElementById('best-streak');
+// --- Habit Tracker JavaScript --- //
 
-    // Initialize habits array from localStorage or empty array
-    let habits = JSON.parse(localStorage.getItem('habits')) || [];
+let habits = [];
+let bestStreak = 0;
 
-    // Render all habits
-    function renderHabits() {
-        habitsList.innerHTML = '';
-        
-        if (habits.length === 0) {
-            habitsList.innerHTML = `
-                <div class="empty-state">
-                    <h3>No habits yet</h3>
-                    <p>Add your first habit to get started!</p>
-                </div>
-            `;
-            totalHabitsEl.textContent = '0';
-            completedTodayEl.textContent = '0';
-            bestStreakEl.textContent = '0';
-            return;
-        }
-        
-        const today = new Date().toISOString().split('T')[0];
-        let completedCount = 0;
-        let maxStreak = 0;
+// Get today's date string (YYYY-MM-DD)
+function getToday() {
+    return new Date().toISOString().slice(0, 10);
+}
 
-        habits.forEach((habit, index) => {
-            // Create habit item element
-            const habitEl = document.createElement('div');
-            habitEl.className = `habit-item ${habit.lastCompleted === today ? 'completed' : ''}`;
-            
-            // Calculate streak
-            const streak = calculateStreak(habit);
-            if (streak > maxStreak) maxStreak = streak;
-            
-            // Update completed count
-            if (habit.lastCompleted === today) completedCount++;
+// Load habits from localStorage
+function loadHabits() {
+    const stored = localStorage.getItem('habits');
+    if (stored) {
+        habits = JSON.parse(stored);
+        // Update best streak from stored habits
+        bestStreak = habits.reduce((max, h) => Math.max(max, h.streak || 0), 0);
+    } else {
+        habits = [];
+        bestStreak = 0;
+    }
+}
 
-            // Habit info
-            habitEl.innerHTML = `
-                <div class="habit-info">
-                    <div class="habit-name">${habit.name}</div>
-                    <div class="habit-frequency">${habit.frequency} • Streak: ${streak}</div>
-                </div>
-                <div class="habit-actions">
-                    <button class="action-btn complete-btn" data-id="${index}">
-                        ${habit.lastCompleted === today ? '✓' : 'Complete'}
-                    </button>
-                    <button class="action-btn delete-btn" data-id="${index}">Delete</button>
-                </div>
-            `;
-            
-            habitsList.appendChild(habitEl);
+// Save habits to localStorage
+function saveHabits() {
+    localStorage.setItem('habits', JSON.stringify(habits));
+}
+
+// Render habits list on page
+function renderHabits() {
+    const list = document.getElementById('habits-list');
+    list.innerHTML = '';
+
+    if (habits.length === 0) {
+        list.innerHTML = '<p>No habits added yet. Add one above!</p>';
+        updateStats();
+        renderCalendar();
+        return;
+    }
+
+    habits.forEach((habit, index) => {
+        const habitDiv = document.createElement('div');
+        habitDiv.className = 'habit-item';
+
+        // Checkbox for completion toggle
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.checked = habit.completedToday || false;
+        checkbox.setAttribute('aria-label', `Mark habit "${habit.name}" completed`);
+        checkbox.addEventListener('change', () => {
+            habit.completedToday = checkbox.checked;
+            if (checkbox.checked) {
+                habit.streak = (habit.streak || 0) + 1;
+                if (habit.streak > bestStreak) bestStreak = habit.streak;
+            } else {
+                habit.streak = 0;
+            }
+            saveHabits();
+            updateStats();
+            renderCalendar();
         });
 
-        // Update stats
-        totalHabitsEl.textContent = habits.length;
-        completedTodayEl.textContent = completedCount;
-        bestStreakEl.textContent = maxStreak;
-    }
+        // Habit name + frequency text
+        const nameSpan = document.createElement('span');
+        nameSpan.textContent = `${habit.name} (${habit.frequency})`;
+        nameSpan.className = 'habit-name';
 
-    // Calculate streak for a habit
-    function calculateStreak(habit) {
-        if (!habit.lastCompleted) return 0;
-        
-        const lastDate = new Date(habit.lastCompleted);
-        const today = new Date();
-        const yesterday = new Date(today);
-        yesterday.setDate(yesterday.getDate() - 1);
-        
-        // Format dates for comparison
-        const lastCompletedStr = lastDate.toISOString().split('T')[0];
-        const yesterdayStr = yesterday.toISOString().split('T')[0];
-        const todayStr = today.toISOString().split('T')[0];
-        
-        if (habit.frequency === 'daily') {
-            if (lastCompletedStr === todayStr) {
-                return habit.streak || 1;
-            } else if (lastCompletedStr === yesterdayStr) {
-                return (habit.streak || 1) + 1;
-            } else {
-                return 0;
-            }
-        }
-        
-        // For weekly habits, just return the stored streak
-        return habit.streak || 0;
-    }
-
-    // Add new habit
-    function addHabit() {
-        const name = habitInput.value.trim();
-        const frequency = frequencySelect.value;
-        
-        if (name) {
-            habits.push({
-                name,
-                frequency,
-                lastCompleted: null,
-                streak: 0
-            });
-            
-            saveHabits();
-            habitInput.value = '';
-            renderHabits();
-        } else {
-            alert('Please enter a habit name');
-        }
-    }
-
-    // Toggle habit completion
-    function toggleComplete(index) {
-        const today = new Date().toISOString().split('T')[0];
-        const habit = habits[index];
-        
-        if (habit.lastCompleted === today) {
-            // Already completed today - undo completion
-            habit.lastCompleted = null;
-            habit.streak = Math.max(0, (habit.streak || 0) - 1);
-        } else {
-            // Mark as completed
-            habit.lastCompleted = today;
-            
-            // Update streak
-            if (habit.frequency === 'daily') {
-                const yesterday = new Date();
-                yesterday.setDate(yesterday.getDate() - 1);
-                const yesterdayStr = yesterday.toISOString().split('T')[0];
-                
-                if (habit.lastCompleted === yesterdayStr) {
-                    habit.streak = (habit.streak || 0) + 1;
-                } else {
-                    habit.streak = 1;
-                }
-            } else {
-                // For weekly habits, just increment
-                habit.streak = (habit.streak || 0) + 1;
-            }
-        }
-        
-        saveHabits();
-        renderHabits();
-    }
-
-    // Delete habit
-    function deleteHabit(index) {
-        if (confirm('Are you sure you want to delete this habit?')) {
+        // Delete button
+        const delBtn = document.createElement('button');
+        delBtn.className = 'delete-btn';
+        delBtn.textContent = '🗑️';
+        delBtn.title = `Delete habit "${habit.name}"`;
+        delBtn.addEventListener('click', () => {
             habits.splice(index, 1);
             saveHabits();
             renderHabits();
-        }
-    }
+            updateStats();
+            renderCalendar();
+        });
 
-    // Reset all habits
-    function resetAll() {
-        if (confirm('Are you sure you want to reset all habits? This cannot be undone.')) {
-            habits = [];
-            saveHabits();
-            renderHabits();
-        }
-    }
+        habitDiv.appendChild(checkbox);
+        habitDiv.appendChild(nameSpan);
+        habitDiv.appendChild(delBtn);
 
-    // Save habits to localStorage
-    function saveHabits() {
-        try {
-            localStorage.setItem('habits', JSON.stringify(habits));
-        } catch (e) {
-            console.error('Failed to save habits:', e);
-            alert('Failed to save habits. Your browser may be in private mode.');
-        }
-    }
-
-    // Event Listeners
-    addBtn.addEventListener('click', addHabit);
-    habitInput.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') addHabit();
-    });
-    
-    resetBtn.addEventListener('click', resetAll);
-    
-    habitsList.addEventListener('click', function(e) {
-        if (e.target.classList.contains('complete-btn')) {
-            toggleComplete(parseInt(e.target.getAttribute('data-id')));
-        } else if (e.target.classList.contains('delete-btn')) {
-            deleteHabit(parseInt(e.target.getAttribute('data-id')));
-        }
+        list.appendChild(habitDiv);
     });
 
-    // Initial render
+    updateStats();
+    renderCalendar();
+}
+
+// Update stats panel
+function updateStats() {
+    const totalHabits = habits.length;
+    const completedToday = habits.filter(h => h.completedToday).length;
+    const totalCompleted = habits.reduce((sum, h) => sum + (h.streak || 0), 0);
+
+    document.getElementById('total-habits').textContent = totalHabits;
+    document.getElementById('completed-today').textContent = completedToday;
+    document.getElementById('best-streak').textContent = bestStreak;
+    document.getElementById('total-completed').textContent = totalCompleted;
+}
+
+// Reset all habits completions and streaks
+function resetHabits() {
+    habits.forEach(habit => {
+        habit.completedToday = false;
+        habit.streak = 0;
+    });
+    bestStreak = 0;
+    saveHabits();
     renderHabits();
+}
+
+// Add a new habit from form input
+function addHabit() {
+    const input = document.getElementById('habit-input');
+    const freqSelect = document.getElementById('frequency-select');
+    const habitName = input.value.trim();
+    const frequency = freqSelect.value;
+
+    if (!habitName) {
+        alert('Please enter a habit name!');
+        return;
+    }
+
+    // Prevent duplicates (case-insensitive)
+    if (habits.some(h => h.name.toLowerCase() === habitName.toLowerCase())) {
+        alert('Habit already exists!');
+        return;
+    }
+
+    habits.push({
+        name: habitName,
+        frequency,
+        completedToday: false,
+        streak: 0
+    });
+
+    saveHabits();
+    renderHabits();
+
+    input.value = '';
+}
+
+// Render a simple calendar grid (current month, days marked as "completed" weekends)
+function renderCalendar() {
+    const calendarGrid = document.getElementById('calendar-grid');
+    calendarGrid.innerHTML = '';
+
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth();
+
+    // Days in month
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+    for (let day = 1; day <= daysInMonth; day++) {
+        const dayDiv = document.createElement('div');
+        dayDiv.className = 'calendar-day';
+        dayDiv.textContent = day;
+
+        // Mark weekends as completed for demo
+        const date = new Date(year, month, day);
+        if (date.getDay() === 0 || date.getDay() === 6) {
+            dayDiv.classList.add('completed-day');
+            dayDiv.title = 'Completed habit day';
+        }
+
+        calendarGrid.appendChild(dayDiv);
+    }
+}
+
+// Initialize app
+window.addEventListener('DOMContentLoaded', () => {
+    loadHabits();
+    renderHabits();
+
+    document.getElementById('add-btn').addEventListener('click', addHabit);
+    document.getElementById('reset-btn').addEventListener('click', () => {
+        if (confirm('Reset all habits? This clears completions and streaks!')) {
+            resetHabits();
+        }
+    });
 });
