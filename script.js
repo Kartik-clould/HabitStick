@@ -1,4 +1,4 @@
-// --- Habit Tracker JavaScript --- //
+// --- Habit Tracker JavaScript (Fixed Version) --- //
 
 let habits = [];
 let bestStreak = 0;
@@ -13,7 +13,6 @@ function loadHabits() {
     const stored = localStorage.getItem('habits');
     if (stored) {
         habits = JSON.parse(stored);
-        // Update best streak from stored habits
         bestStreak = habits.reduce((max, h) => Math.max(max, h.streak || 0), 0);
     } else {
         habits = [];
@@ -42,30 +41,35 @@ function renderHabits() {
         const habitDiv = document.createElement('div');
         habitDiv.className = 'habit-item';
 
-        // Checkbox for completion toggle
         const checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
         checkbox.checked = habit.completedToday || false;
         checkbox.setAttribute('aria-label', `Mark habit "${habit.name}" completed`);
         checkbox.addEventListener('change', () => {
+            const today = getToday();
             habit.completedToday = checkbox.checked;
             if (checkbox.checked) {
                 habit.streak = (habit.streak || 0) + 1;
+                habit.completedDates = habit.completedDates || [];
+                if (!habit.completedDates.includes(today)) {
+                    habit.completedDates.push(today);
+                }
                 if (habit.streak > bestStreak) bestStreak = habit.streak;
             } else {
                 habit.streak = 0;
+                if (habit.completedDates) {
+                    habit.completedDates = habit.completedDates.filter(date => date !== today);
+                }
             }
             saveHabits();
             updateStats();
             renderCalendar();
         });
 
-        // Habit name + frequency text
         const nameSpan = document.createElement('span');
         nameSpan.textContent = `${habit.name} (${habit.frequency})`;
         nameSpan.className = 'habit-name';
 
-        // Delete button
         const delBtn = document.createElement('button');
         delBtn.className = 'delete-btn';
         delBtn.textContent = '🗑️';
@@ -106,6 +110,7 @@ function resetHabits() {
     habits.forEach(habit => {
         habit.completedToday = false;
         habit.streak = 0;
+        habit.completedDates = [];
     });
     bestStreak = 0;
     saveHabits();
@@ -124,7 +129,6 @@ function addHabit() {
         return;
     }
 
-    // Prevent duplicates (case-insensitive)
     if (habits.some(h => h.name.toLowerCase() === habitName.toLowerCase())) {
         alert('Habit already exists!');
         return;
@@ -134,7 +138,8 @@ function addHabit() {
         name: habitName,
         frequency,
         completedToday: false,
-        streak: 0
+        streak: 0,
+        completedDates: []
     });
 
     saveHabits();
@@ -143,7 +148,7 @@ function addHabit() {
     input.value = '';
 }
 
-// Render a simple calendar grid (current month, days marked as "completed" weekends)
+// Render a real calendar with completed days
 function renderCalendar() {
     const calendarGrid = document.getElementById('calendar-grid');
     calendarGrid.innerHTML = '';
@@ -152,7 +157,6 @@ function renderCalendar() {
     const year = now.getFullYear();
     const month = now.getMonth();
 
-    // Days in month
     const daysInMonth = new Date(year, month + 1, 0).getDate();
 
     for (let day = 1; day <= daysInMonth; day++) {
@@ -160,9 +164,13 @@ function renderCalendar() {
         dayDiv.className = 'calendar-day';
         dayDiv.textContent = day;
 
-        // Mark weekends as completed for demo
-        const date = new Date(year, month, day);
-        if (date.getDay() === 0 || date.getDay() === 6) {
+        const dateStr = new Date(year, month, day).toISOString().slice(0, 10);
+
+        const isCompleted = habits.some(habit =>
+            habit.completedDates && habit.completedDates.includes(dateStr)
+        );
+
+        if (isCompleted) {
             dayDiv.classList.add('completed-day');
             dayDiv.title = 'Completed habit day';
         }
